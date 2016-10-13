@@ -29,6 +29,8 @@ int main(){
 	char *msg = "Beej was here!";
 	int len, bytes_sent;
 
+	char *hostname;
+
 	#if _WIN32 || _WIN64
 	wVersionRequested = MAKEWORD(2, 2);
 	err = WSAStartup(wVersionRequested, &wsaData);
@@ -95,7 +97,20 @@ int main(){
 		exit(1);	
 	}
 
-	freeaddrinfo(servinfo); // Free the linked-list
+	s = gethostname(&hostname, sizeof &hostname);
 
+	if (s == -1) {
+		fprintf(stderr, "gethostname error %s\n", gai_strerror(errno));
+		exit(1);		
+	}
+	
+	printf("hostname is %s\n", hostname);
+
+	freeaddrinfo(servinfo); // Free the linked-list
+	#if _WIN32 || _WIN64
+	closesocket(sockfd);
+	#else
+	close(sockfd);
+	#endif
 	return 0;
 }
